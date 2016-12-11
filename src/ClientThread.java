@@ -25,6 +25,9 @@ public class ClientThread {
         this.socket = socket;
     }
 
-    public void start(){
+    public void run(){
+
+
+
     }
 }

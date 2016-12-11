@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import javax.swing.*;
 
 /**
@@ -22,7 +23,7 @@ public class Server extends JFrame {
     private ServerSocket serverSocket;
     private Socket socket;
     private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
+    private ArrayList<ObjectOutputStream> outputStreams;
 
     // GUI Variables
     private JTextField userText;
@@ -144,10 +145,12 @@ public class Server extends JFrame {
      * Sends message to the client
      * @param message- string for message being sent to client
      */
-    private void sendMessage(String message){
+    private void sendMessage(Message message){
         try {
-            outputStream.writeObject("SERVER - "+ message);
-            outputStream.flush();
+            for (ObjectOutputStream out: outputStreams) {
+                out.writeObject("SERVER - " + message);
+                out.flush();
+            }
             showMessage("\nSERVER - "+ message);
         } catch(IOException io) {
             chatWindow.append("\nERROR: Can't Send Message");
@@ -183,4 +186,5 @@ public class Server extends JFrame {
             }
         );
     }
+
 }

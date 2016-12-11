@@ -17,7 +17,7 @@ public class Message {
         this.message = message;
 
     }
-    
+
     public String getSender(){return this.sender;}
     public ArrayList<String> getRecievers(){return this.recievers;}
     public String getMessage(){return this.message;}
