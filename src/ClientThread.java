@@ -33,7 +33,7 @@ public class ClientThread {
 
             do {
 
-                Message m = in.getClass(Message);
+                Object m = in.readObject();
 
                 sendMessage(m);
 
