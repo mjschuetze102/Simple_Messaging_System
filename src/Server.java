@@ -66,16 +66,9 @@ public class Server extends JFrame {
                     allowChat();
                 } catch(EOFException eof) {
                     showMessage("\n Server Connection Ended");
-                    break;
                 } finally {
                     closeConnection();
                 }
-                // Connect to the serverSocket
-                socket = serverSocket.accept();
-
-                // Create a new thread for the connection and start it
-                ClientThread thread= new ClientThread(socket);
-                thread.start();
             }
         } catch(IOException io){
             io.printStackTrace();
