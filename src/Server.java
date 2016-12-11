@@ -7,7 +7,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
 import javax.swing.*;
 
 /**
@@ -22,8 +21,6 @@ public class Server extends JFrame {
     // Undefined variables
     private ServerSocket serverSocket;
     private Socket socket;
-    private ObjectInputStream inputStream;
-    private ArrayList<ObjectOutputStream> outputStreams;
 
     // GUI Variables
     private JTextField userText;
@@ -63,13 +60,13 @@ public class Server extends JFrame {
             while (true) {
                 try {
                     waitForConnection();
-                    setupSteams();
-                    allowChat();
+                    setupThread();
                 } catch(EOFException eof) {
                     showMessage("\n Server Connection Ended");
                 } finally {
                     closeConnection();
                 }
+
             }
         } catch(IOException io){
             io.printStackTrace();
@@ -96,13 +93,12 @@ public class Server extends JFrame {
      * Sets up the send/receive streams
      * @throws IOException
      */
-    private void setupSteams() throws IOException {
+    private void setupThread() throws IOException {
         // Sets up the output stream to send data and flushes out data
-        outputStream= new ObjectOutputStream(socket.getOutputStream());
-        outputStream.flush();
+        ClientThread thread = new ClientThread(socket);
+        thread.start();
 
         // Sets up the input stream to collect data
-        inputStream= new ObjectInputStream(socket.getInputStream());
 
         // Displays a message for the user
         showMessage("\nStreams are now setup!\n");
@@ -145,12 +141,10 @@ public class Server extends JFrame {
      * Sends message to the client
      * @param message- string for message being sent to client
      */
-    private void sendMessage(Message message){
+    private void sendMessage(String message){
         try {
-            for (ObjectOutputStream out: outputStreams) {
-                out.writeObject("SERVER - " + message);
-                out.flush();
-            }
+            outputStream.writeObject("SERVER - "+ message);
+            outputStream.flush();
             showMessage("\nSERVER - "+ message);
         } catch(IOException io) {
             chatWindow.append("\nERROR: Can't Send Message");
@@ -186,5 +180,4 @@ public class Server extends JFrame {
             }
         );
     }
-
 }

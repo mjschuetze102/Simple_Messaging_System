@@ -5,6 +5,7 @@
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class ClientThread {
 
@@ -14,7 +15,7 @@ public class ClientThread {
 
     // Undefined variables
     Socket socket;
-    DataInputStream in;
+    ObjectInputStream in;
     DataOutputStream out;
 
     /**
@@ -27,7 +28,22 @@ public class ClientThread {
 
     public void run(){
 
+        try {
+            in = new ObjectInputStream(socket.getInputStream());
 
+            do {
+
+                Message m = in.getClass(Message);
+
+                sendMessage(m);
+
+            } while (true);
+        }catch (IOException IOex){
+            System.err.println("Server: " + ex.getMessage());
+        }
+
+
+        return;
 
     }
 }
