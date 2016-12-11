@@ -3,11 +3,19 @@
  * Created by Michael on 12/10/2016.
  */
 
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
 public class ClientThread {
 
+    // Predefined variables
+    final int PORT = 9001;
+    String host = "localhost";
+
+    // Undefined variables
     Socket socket;
+    DataInputStream in;
+    DataOutputStream out;
 
     /**
      * Constructor for the ClientThread class
@@ -17,5 +25,6 @@ public class ClientThread {
         this.socket = socket;
     }
 
-    public static void start(){}
+    public void start(){
+    }
 }

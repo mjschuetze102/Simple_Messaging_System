@@ -3,30 +3,46 @@
  * Created by Michael on 12/10/2016.
  */
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
 /**
  * Runs the server
  */
 public class Server {
-    public static void main(String[] args) {
+
+    // Predefined variables
+    final int PORT = 9001;
+    final int MAXUSERS = 10;
+
+    // Undefined variables
+    private ServerSocket serverSocket;
+    private Socket socket;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
+
+    /**
+     * Constructor for the Server class
+     */
+    public Server() {
+    }
+
+    public void run() {
         // Run the server catching any IO exceptions
         try {
             // Create a server socket
-            ServerSocket serverSocket = new ServerSocket(9001);
+            serverSocket = new ServerSocket(PORT, MAXUSERS);
 
             while (true) {
-                Socket socket = serverSocket.accept();
+                // Connect to the serverSocket
+                socket = serverSocket.accept();
 
                 // Create a new thread for the connection and start it
                 ClientThread thread = new ClientThread(socket);
-
                 thread.start();
             }
         } catch(IOException ex){
-            System.err.println(ex);
+            ex.printStackTrace();
         }
     }
 }
