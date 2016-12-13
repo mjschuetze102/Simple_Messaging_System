@@ -61,7 +61,7 @@ public class ClientGUI extends Application {
         // Button in the bottom right
         // When clicked will deselect all of the names from the ListView
         Button deselect= new Button("Deselect");
-        deselect.setOnAction(event -> {} );
+        deselect.setOnAction(event -> {users.getSelectionModel().clearSelection();} );
         right.getChildren().add(deselect);
 
         // Add VBox to the BorderPane
