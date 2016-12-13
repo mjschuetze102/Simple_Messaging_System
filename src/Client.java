@@ -1,13 +1,12 @@
-/**
- * Created by Oscar on 12/10/2016.
- */
-
 import java.io.*;
 import java.net.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+/**
+ * Created by Oscar on 12/10/2016.
+ */
 public class Client extends JFrame{
 
     private JTextField userText;
