@@ -146,6 +146,11 @@ public class ClientGUI extends Application {
 
         // Function called when programmed is closed
         stage.setOnCloseRequest(event -> {onClose();});
+
+        ArrayList<String> testing= new ArrayList<>();
+        testing.add("Oscar"); testing.add("Juri"); testing.add("Michael"); // Comment this out to test other display
+        Message message= new Message("Client", testing, "Hello");
+        receiveMessage(message);
     }
 
     /**
@@ -259,12 +264,49 @@ public class ClientGUI extends Application {
 
     /**
      * Gets a message from the server and interprets it in one of two ways
-     *      1. If sender contains a value, displays the message for the user to see
-     *      2. If sender is null, update the user list
+     *      1. If text contains a value, displays the message for the user to see
+     *      2. If text is "" and sender is null, update the user list
      * @param message- Message object from server
      */
-    private void receiveMessage(Message message){
-        //
+    public void receiveMessage(Message message){
+        String text= message.getMessage();
+        String sender= message.getSender();
+        ArrayList<String> recipients= message.getReceivers();
+
+        // If text contains a value, display the message
+        if(!text.equals(""))
+            displayMessage(text, sender, recipients);
+    }
+
+    /**
+     * Append the message to the bottom of the TextArea
+     * Displayed in either:
+     *      [client]- Message
+     *      [client] { recipient/recipient }- Message
+     * @param text- message being displayed to the user
+     * @param sender- the user who sent the message
+     * @param recipients- the users the message was sent to
+     */
+    private void displayMessage(String text, String sender, ArrayList<String> recipients){
+        // Create the start of the string that will be displayed
+        String message= "\n["+ sender+ "] ";
+
+        // If the sender selected people to whisper to
+        if(recipients.size() != userList.getItems().size() && recipients.size() != 0){
+            message+= "{ ";
+            // Loop through each recipient and add their name to the list
+            for(int index= 0; index < recipients.size() -1; index++){
+                message+= recipients.get(index)+ "/ ";
+            }
+            // Add the last recipient to the string to avoid an extra '/'
+            message+= recipients.get(recipients.size() -1)+ " }";
+        }
+
+        // Message will either be in '[client]-' or '[client] { recipient }-' form
+        message+= "- "+ text;
+
+        // Add the message to the end of the TextArea
+        messageArea.appendText(message);
     }
 
     /**
