@@ -292,7 +292,7 @@ public class ClientGUI extends Application {
         String message= "\n["+ sender+ "] ";
 
         // If the sender selected people to whisper to
-        if(recipients.size() != userList.getItems().size() && recipients.size() != 0){
+        if(recipients.size() != userList.getItems().size() && recipients.size() <= 1){
             message+= "{ ";
             // Loop through each recipient and add their name to the list
             for(int index= 0; index < recipients.size() -1; index++){
