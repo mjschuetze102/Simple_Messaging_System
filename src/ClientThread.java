@@ -1,10 +1,10 @@
+import java.io.*;
+import java.net.*;
+
 /**
  *
  * Created by Michael on 12/10/2016.
  */
-
-import java.io.*;
-import java.net.*;
 
 public class ClientThread {
 
