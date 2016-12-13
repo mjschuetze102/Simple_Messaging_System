@@ -108,6 +108,7 @@ public class ClientGUI extends Application {
         /** Stage Properties */
         stage.setTitle("Simple Messaging System");
         stage.setScene(new Scene(border));
+        stage.setResizable(false);
         stage.show();
     }
 
