@@ -29,7 +29,7 @@ public class ClientGUI extends Application {
     private Client client;
 
     /** The name of the client */
-    private String clientName;
+    private String clientName = "Client";
 
     ///////////////////////////
     // GUI Field Variables
@@ -147,9 +147,31 @@ public class ClientGUI extends Application {
         // Function called when programmed is closed
         stage.setOnCloseRequest(event -> {onClose();});
 
+        //////////////////////////////////////
+        // Various tests on receiveMessage
+        //////////////////////////////////////
+
+        // ArrayList containing three strings
         ArrayList<String> testing= new ArrayList<>();
-        testing.add("Oscar"); testing.add("Juri"); testing.add("Michael"); // Comment this out to test other display
-        Message message= new Message("Client", testing, "Hello");
+        testing.add("Oscar"); testing.add("Juri"); testing.add("Michael");
+
+        // Send a new message that will be displayed for the user
+        // Displays in whisper styling [Client] { Oscar/ Juri/ Michael }- Hello World
+        Message message= new Message("Client", testing, "Hello World!");
+        receiveMessage(message);
+
+        // Update the ListView and fill it with new users
+        Message changeUsers= new Message(null, testing, "");
+        receiveMessage(changeUsers);
+
+        // Send a new message that will be displayed for the user
+        // Displays in normal styling [Client]- Hello World
+        message= new Message("Client", testing, "Hello World!");
+        receiveMessage(message);
+
+        // Send a new message that will be displayed for the user
+        // Displays in normal styling [Client]- Hello World
+        message= new Message("Client", null, "Hello World!");
         receiveMessage(message);
     }
 
@@ -274,8 +296,17 @@ public class ClientGUI extends Application {
         ArrayList<String> recipients= message.getReceivers();
 
         // If text contains a value, display the message
+        // Else check for the special server-client interactions
         if(!text.equals(""))
             displayMessage(text, sender, recipients);
+        else {
+            // If the sender is null, update the ListView
+            if(sender == null){
+                // Create an observable list from the list of recipients
+                ObservableList<String> names= FXCollections.observableArrayList(recipients);
+                userList.setItems(names);
+            }
+        }
     }
 
     /**
@@ -292,7 +323,7 @@ public class ClientGUI extends Application {
         String message= "\n["+ sender+ "] ";
 
         // If the sender selected people to whisper to
-        if(recipients.size() != userList.getItems().size() && recipients.size() <= 1){
+        if(recipients != null && recipients.size() != userList.getItems().size() && recipients.size() > 1){
             message+= "{ ";
             // Loop through each recipient and add their name to the list
             for(int index= 0; index < recipients.size() -1; index++){
