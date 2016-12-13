@@ -367,7 +367,7 @@ public class ClientGUI extends Application {
      * @param message- Message object containing sender, recipients, and text
      */
     private void sendMessage(Message message){
-        //
+        receiveMessage(message);
     }
 
     /////////////////////////////////////////////////////////////
