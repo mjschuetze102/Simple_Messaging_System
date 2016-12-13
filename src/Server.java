@@ -1,8 +1,3 @@
-/**
- *
- * Created by Michael on 12/10/2016.
- */
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -10,7 +5,8 @@ import java.net.*;
 import javax.swing.*;
 
 /**
- * Runs the server
+ * Runs the server for the project
+ * Created by Michael on 12/10/2016.
  */
 public class Server extends JFrame {
 

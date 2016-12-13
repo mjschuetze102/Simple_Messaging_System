@@ -1,9 +1,8 @@
+import java.util.*;
+
 /**
  * Created by Oscar on 12/10/2016.
  */
-
-import java.util.*;
-
 public class Message {
 
     private String sender;
