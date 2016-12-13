@@ -12,7 +12,6 @@ import java.util.ArrayList;
 /**
  * Creates the GUI for the clients to view
  * Created by Michael on 12/10/2016.
- * TODO: Finish the sendMessage and receiveMessage functions
  */
 
 public class ClientGUI extends Application {
@@ -50,7 +49,7 @@ public class ClientGUI extends Application {
     private Button send;
 
     /////////////////////////////////////////////////////////////
-    //  GUI Functions
+    //  GUI Startup Functions
     /////////////////////////////////////////////////////////////
 
     /**
@@ -250,6 +249,10 @@ public class ClientGUI extends Application {
         messageArea.setEditable(false);
         messageArea.setWrapText(true);
     }
+
+    /////////////////////////////////////////////////////////////
+    //  GUI Functions
+    /////////////////////////////////////////////////////////////
 
     /**
      * Selects the people who were included in the recipient list
