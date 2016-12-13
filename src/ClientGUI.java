@@ -78,8 +78,6 @@ public class ClientGUI extends Application {
         ObservableList<String> names = FXCollections.observableArrayList(
                 "Julia", "Ian", "Sue", "Matthew", "Hannah", "Stephan", "Denise");
         ListView<String> userList = new ListView<>(names);
-        userList.setPadding(new Insets(10));
-        userList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         // Set userList.getItems() to this.userList and add it to the right VBox
         this.userList= userList;
         right.getChildren().add(userList);
@@ -87,7 +85,6 @@ public class ClientGUI extends Application {
         // Button in the bottom right
         // When clicked will deselect all of the names from the ListView
         Button deselect= new Button("Deselect");
-        deselect.setOnAction(event -> {userList.getSelectionModel().clearSelection();} );
         // Add deselect to the right VBox
         right.getChildren().add(deselect);
 
@@ -114,7 +111,6 @@ public class ClientGUI extends Application {
         // TextField in the bottom left
         // Displays messages
         TextField textInput= new TextField();
-        textInput.setOnKeyReleased(event -> {toggleSend();});
         // Set textInput to this.textInput and add it to the bottom HBox
         this.textInput= textInput;
         bottom.getChildren().add(textInput);
@@ -122,8 +118,6 @@ public class ClientGUI extends Application {
         // Button in the bottom left
         // When clicked will send messages to the system
         Button send= new Button("Send");
-        send.setOnAction(event -> {createMessage();});
-        send.setDefaultButton(true); // Allows Enter key to press the button
         // Set send to this.send and add it to the bottom HBox
         this.send= send;
         bottom.getChildren().add(send);
@@ -139,6 +133,7 @@ public class ClientGUI extends Application {
         /** Calls to the functions that change the fields from default values */
         setDimensions(userList, deselect, messageArea, textInput, send);
         setMargins(userList, deselect, messageArea, bottom, textInput, send);
+        defineProperties(userList, deselect, messageArea, textInput, send);
 
         // Set the send button to disabled at the start
         toggleSend();
@@ -215,6 +210,35 @@ public class ClientGUI extends Application {
         VBox.setMargin(bottom, new Insets(0, 0, 10, 10));
         HBox.setMargin(textInput, new Insets(0, 10, 0, 0));
         HBox.setMargin(send, new Insets(0, 0, 0, 10));
+
+        // Set Padding for userList
+        userList.setPadding(new Insets(10));
+    }
+
+    /**
+     * Handles adding the properties to the fields
+     * @param userList- ListView
+     * @param deselect- Button
+     * @param messageArea- TextArea
+     * @param textInput- TextField
+     * @param send- Button
+     */
+    private void defineProperties(ListView<String> userList, Button deselect, TextArea messageArea,
+                                TextField textInput, Button send){
+        // Event Handlers for fields
+        deselect.setOnAction(event -> {userList.getSelectionModel().clearSelection();});
+        textInput.setOnKeyReleased(event -> {toggleSend();});
+        send.setOnAction(event -> {createMessage();});
+
+        // Allow for multiple users to be selected from the ListView
+        userList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        // Allow the Enter key to activate button
+        send.setDefaultButton(true);
+
+        // Set the TextArea to uneditable and to wrap text
+        messageArea.setEditable(false);
+        messageArea.setWrapText(true);
     }
 
     /**
