@@ -1,7 +1,12 @@
 import java.util.*;
 
 /**
+ * Message class which will allow server and clients to talk with each other
  * Created by Oscar on 12/10/2016.
+ *
+ * Tricks to Message Class:
+ *      1. Users can not send blank messages
+ *      2. If message is blank, a special case has occurred
  */
 public class Message {
 
