@@ -38,6 +38,9 @@ public class ClientGUI extends Application {
     /** A List representing the list of users */
     private ListView<String> userList;
 
+    /** A TextArea where users will see messages displayed */
+    private TextArea messageArea;
+
     /** A TextField where users type in a message to send */
     private TextField textInput;
 
@@ -101,7 +104,8 @@ public class ClientGUI extends Application {
         // TextArea in the top left
         // Displays messages
         TextArea messageArea = new TextArea();
-        // Add messageArea to the left VBox
+        // Set messageArea to this.messageArea and add it to the left VBox
+        this.messageArea= messageArea;
         left.getChildren().add(messageArea);
 
         /** HBox to line up TextField and Button */
@@ -147,6 +151,21 @@ public class ClientGUI extends Application {
 
         // Function called when programmed is closed
         stage.setOnCloseRequest(event -> {onClose();});
+    }
+
+    /**
+     * Called when program closes to tell server user has left
+     */
+    private void onClose(){
+        // Get the values of each of the fields
+        String clientName= this.clientName;
+        ArrayList<String> recipients= getRecipients();
+
+        // Create a new special case message for server to interpret
+        Message message= new Message(clientName, recipients, "");
+
+        // Call the sendMessage function with the message to send
+        sendMessage(message);
     }
 
     /////////////////////////////////////////////////////////////
@@ -210,21 +229,6 @@ public class ClientGUI extends Application {
             this.send.setDisable(false);
     }
 
-    /**
-     * Called when program closes to tell server user has left
-     */
-    private void onClose(){
-        // Get the values of each of the fields
-        String clientName= this.clientName;
-        ArrayList<String> recipients= getRecipients();
-
-        // Create a new special case message for server to interpret
-        Message message= new Message(clientName, recipients, "");
-
-        // Call the sendMessage function with the message to send
-        sendMessage(message);
-    }
-
     /////////////////////////////////////////////////////////////
     //  Message Functions
     /////////////////////////////////////////////////////////////
@@ -279,7 +283,7 @@ public class ClientGUI extends Application {
      */
     private ArrayList<String> getRecipients(){
         // Create a new recipients variable that will store a list of recipients for a message
-        ArrayList<String> recipients= null;
+        ArrayList<String> recipients;
 
         // If there are selected items, copy them into an ArrayList
         // Else create a new ArrayList with all items
