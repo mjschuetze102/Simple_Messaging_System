@@ -42,6 +42,10 @@ public class ClientThread extends Thread{
                     OutputManager.addOutput(m.getSender(), out);
                 }
 
+                m = new Message( null, OutputManager.getClientList(), "" );
+
+                OutputManager.sendMessage( m );
+
                 do {
 
                     m = (Message) in.readObject();

@@ -6,6 +6,7 @@ import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.*;
 import java.util.HashMap;
 
 public class OutputManager {
@@ -16,6 +17,17 @@ public class OutputManager {
         outputs.put(client, out);
     }
 
+    static synchronized ArrayList<String> getClientList(){
+        Set<String> keys = outputs.keySet();
+
+        ArrayList<String> clientList = new ArrayList<>();
+        for ( String client : keys ){
+            clientList.add(client);
+        }
+
+        return clientList;
+    }
+
     static synchronized void removeOutput( String client ){
         try{
             outputs.get(client).close();
@@ -23,11 +35,9 @@ public class OutputManager {
         }catch (IOException IOex){
             System.err.print("\nClosing output: " + IOex.getMessage());
         }
-
     }
 
     static synchronized void sendMessage( Message m ){
-
         for ( String recipient : m.getRecievers()){
             try{
                 outputs.get(recipient).writeObject(m);
@@ -35,7 +45,6 @@ public class OutputManager {
                 System.err.print("\nSending Message err: " + IOex.getMessage());
             }
         }
-
     }
 
 
