@@ -12,11 +12,11 @@ public class OutputManager {
 
     static HashMap<String, ObjectOutputStream> outputs = new HashMap<>();
 
-    static void addOutput( String client, ObjectOutputStream out ){
+    static synchronized void addOutput( String client, ObjectOutputStream out ){
         outputs.put(client, out);
     }
 
-    static void removeOutput( String client ){
+    static synchronized void removeOutput( String client ){
         try{
             outputs.get(client).close();
             outputs.remove(client);
@@ -26,7 +26,7 @@ public class OutputManager {
 
     }
 
-    static void sendMessage( Message m ){
+    static synchronized void sendMessage( Message m ){
 
         for ( String recipient : m.getRecievers()){
             try{
