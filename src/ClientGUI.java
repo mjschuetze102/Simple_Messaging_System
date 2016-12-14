@@ -6,35 +6,23 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Creates the GUI for the clients to view
  * Created by Michael on 12/10/2016.
  */
 
-public class ClientGUI extends Application {
+public class ClientGUI extends Application implements Observer {
 
     ///////////////////////////
-    // Client Variables
+    // ClientGUI Variables
     ///////////////////////////
-
-    /** Name of the host IPAddress */
-    final String HOST = "localhost";
 
     /** The underlying client model */
     private Client client;
-
-    /** The name of the client */
-    private String clientName = "Client";
-
-    /** The group of recipients in the last whisper */
-    private ArrayList<String> whisperGroup;
-
-    ///////////////////////////
-    // GUI Field Variables
-    ///////////////////////////
 
     /** A List representing the list of users */
     private ListView<String> userList;
@@ -49,14 +37,15 @@ public class ClientGUI extends Application {
     private Button send;
 
     /////////////////////////////////////////////////////////////
-    //  GUI Startup Functions
+    //  GUI Functions
     /////////////////////////////////////////////////////////////
 
     /**
      * Construct a Client object
      */
     public ClientGUI() {
-        this.client= new Client(HOST);
+        this.client= new Client();
+        this.client.addObserver(this);
     }
 
     /**
@@ -146,35 +135,10 @@ public class ClientGUI extends Application {
         stage.show();
 
         // Function called when programmed is closed
-        stage.setOnCloseRequest(event -> {onClose();});
-        onStart();
+        stage.setOnCloseRequest(event -> {this.client.onClose();});
 
-        //////////////////////////////////////
-        // Various tests on receiveMessage
-        //////////////////////////////////////
-
-        // ArrayList containing three strings
-        ArrayList<String> testing= new ArrayList<>();
-        testing.add("Oscar"); testing.add("Juri"); testing.add("Michael");
-
-        // Send a new message that will be displayed for the user
-        // Displays in whisper styling [Client] { Oscar/ Juri/ Michael }- Hello World
-        Message message= new Message("Client", testing, "Hello World!");
-        receiveMessage(message);
-
-        // Update the ListView and fill it with new users
-        Message changeUsers= new Message(null, testing, "");
-        receiveMessage(changeUsers);
-
-        // Send a new message that will be displayed for the user
-        // Displays in normal styling [Client]- Hello World
-        message= new Message("Client", testing, "Hello World!");
-        receiveMessage(message);
-
-        // Send a new message that will be displayed for the user
-        // Displays in normal styling [Client]- Hello World
-        message= new Message("Client", new ArrayList<>(), "Hello World!");
-        receiveMessage(message);
+        // Start Client
+        this.client.startRunning();
     }
 
     /**
@@ -236,6 +200,7 @@ public class ClientGUI extends Application {
     private void defineProperties(ListView<String> userList, Button deselect, TextArea messageArea,
                                   TextField textInput, Button send){
         // Event Handlers for fields
+        userList.setOnMouseClicked(event -> {this.client.changeSelectedUsers(userList.getSelectionModel().getSelectedItem());});
         deselect.setOnAction(event -> {userList.getSelectionModel().clearSelection();});
         textInput.setOnKeyReleased(event -> {toggleSend(); actionCommands();});
         send.setOnAction(event -> {createMessage();});
@@ -251,31 +216,16 @@ public class ClientGUI extends Application {
         messageArea.setWrapText(true);
     }
 
-    /////////////////////////////////////////////////////////////
-    //  GUI Functions
-    /////////////////////////////////////////////////////////////
-
     /**
-     * Selects the people who were included in the recipient list
-     * @param recipients- the users the message was sent to
+     * Enables/Disables the send button based on whether or not textInput is empty
      */
-    private void selectRecipients(ArrayList<String> recipients){
-        // Clear the currently selected list
-        this.userList.getSelectionModel().clearSelection();
-
-        // For each recipient in recipients find and add them to the selected users
-        for(String recipient: recipients)
-            this.userList.getSelectionModel().select(recipient);
-    }
-
-    /**
-     * Sets the ListView to contain the new recipients list
-     * @param recipients- the users the message was sent to
-     */
-    private void setUserList(ArrayList<String> recipients){
-        // Create an observable list from the list of recipients
-        ObservableList<String> names= FXCollections.observableArrayList(recipients);
-        userList.setItems(names);
+    private void toggleSend(){
+        // If the textInput field is empty, disable the send button
+        // Else when there is text in the textInput field, enable the send button
+        if(this.textInput.getText().equals(""))
+            this.send.setDisable(true);
+        else
+            this.send.setDisable(false);
     }
 
     /**
@@ -287,7 +237,7 @@ public class ClientGUI extends Application {
      * @param sender- the user who sent the message
      * @param recipients- the users the message was sent to
      */
-    private void displayMessage(String text, String sender, ArrayList<String> recipients){
+    private void setDisplay(String text, String sender, ArrayList<String> recipients){
         // Create the start of the string that will be displayed
         String message= "\n["+ sender+ "] ";
 
@@ -309,16 +259,57 @@ public class ClientGUI extends Application {
         messageArea.appendText(message);
     }
 
+    /////////////////////////////////////////////////////////////
+    //  GUI Interactions with Model
+    /////////////////////////////////////////////////////////////
+
     /**
-     * Enables/Disables the send button based on whether or not textInput is empty
+     * Sets the ListView to contain the new recipients list
+     * @param recipients- the users the message was sent to
      */
-    private void toggleSend(){
-        // If the textInput field is empty, disable the send button
-        // Else when there is text in the textInput field, enable the send button
-        if(this.textInput.getText().equals(""))
-            this.send.setDisable(true);
-        else
-            this.send.setDisable(false);
+    private void setUserList(ArrayList<String> recipients){
+        // Create an observable list from the list of recipients
+        ObservableList<String> names= FXCollections.observableArrayList(recipients);
+        userList.setItems(names);
+    }
+
+    /**
+     * Selects the people who were included in the recipient list
+     * @param recipients- the users the message was sent to
+     */
+    private void setSelectedUserList(ArrayList<String> recipients){
+        // Clear the currently selected list
+        this.userList.getSelectionModel().clearSelection();
+
+        // For each recipient in recipients find and add them to the selected users
+        for(String recipient: recipients)
+            this.userList.getSelectionModel().select(recipient);
+    }
+
+    /**
+     * Gets the message from the model and interprets whether or not to display it
+     * @param message- the message received from the model
+     */
+    private void receiveMessage(Message message){
+        // If there wasn't a message change don't display anything
+        if(message == null)
+            return;
+
+        // Send the message to be displayed in TextArea
+        setDisplay(message.getMessage(), message.getSender(), message.getReceivers());
+    }
+
+    /**
+     * Gets the error from the model and interprets whether or not to display it
+     * @param error- the error being received from the model
+     */
+    private void checkError(String error){
+        // If there wasn't a error change don't display anything
+        if(error == null)
+            return;
+
+        // Send the error to be displayed in TextArea
+        setDisplay(error, "Server", new ArrayList<>());
     }
 
     /////////////////////////////////////////////////////////////
@@ -335,10 +326,10 @@ public class ClientGUI extends Application {
 
         // If there are selected items, copy them into an ArrayList
         // Else create a new ArrayList with all items
-        if(!userList.getSelectionModel().getSelectedItems().isEmpty())
-            recipients= new ArrayList<>(userList.getSelectionModel().getSelectedItems());
+        if(!this.client.getSelectedUsers().isEmpty())
+            recipients= new ArrayList<>(this.client.getSelectedUsers());
         else
-            recipients= new ArrayList<>(this.userList.getItems());
+            recipients= new ArrayList<>(this.client.getUsers());
 
         // Return the new ArrayList containing all the recipients
         return recipients;
@@ -352,7 +343,7 @@ public class ClientGUI extends Application {
     private void createMessage(){
         // Get the values of each of the fields
         String text= this.textInput.getText();
-        String clientName= this.clientName;
+        String clientName= this.client.getClientName();
         ArrayList<String> recipients= getRecipients();
 
         // Reset the textInput field to blank and the send button to disabled
@@ -363,7 +354,7 @@ public class ClientGUI extends Application {
         Message message= new Message(clientName, recipients, text);
 
         // Call the sendMessage function with the message to send
-        sendMessage(message);
+        this.client.sendMessage(message);
     }
 
     /**
@@ -380,94 +371,39 @@ public class ClientGUI extends Application {
         if(text.length() != 2)
             return;
 
-        // Check that the conditions for replying to a whisper are met
-        if(this.whisperGroup == null)
-            return;
-
         // Check the first character to make sure it's an action character
         if(text.charAt(0) == '-' || text.charAt(0) == '/'){
             // Check if the second character sets off the respond command
             if(text.charAt(1) == 'r' || text.charAt(1) == 'w'){
+                // Check that the conditions for replying to a whisper are met
+                if(this.client.getWhisperGroup() == null)
+                    return;
+
                 // Clear TextField, toggle Send, and change ListView
                 this.textInput.clear();
                 toggleSend();
-                selectRecipients(this.whisperGroup);
-            }
-        }
-    }
-
-    /////////////////////////////////////////////////////////////
-    //  Client Functions
-    /////////////////////////////////////////////////////////////
-
-    /**
-     * Called when program opens to tell server user has joined
-     */
-    private void onStart(){
-        // Get the values of each of the fields
-        String clientName= this.clientName;
-
-        // Create a new special case message for server to interpret
-        Message message= new Message(clientName, new ArrayList<>(), "");
-
-        // Call the sendMessage function with the message to send
-        sendMessage(message);
-    }
-
-    /**
-     * Called when program closes to tell server user has left
-     */
-    private void onClose(){
-        // Get the values of each of the fields
-        String clientName= this.clientName;
-        ArrayList<String> recipients= new ArrayList<>(userList.getItems());
-
-        // Create a new special case message for server to interpret
-        Message message= new Message(clientName, recipients, "");
-
-        // Call the sendMessage function with the message to send
-        sendMessage(message);
-    }
-
-    /**
-     * Gets a message from the server and interprets it in one of two ways
-     *      1. If text contains a value, displays the message for the user to see
-     *      2. If text is "" and sender is null, update the user list
-     * @param message- Message object from server
-     */
-    public void receiveMessage(Message message){
-        String text= message.getMessage();
-        String sender= message.getSender();
-        ArrayList<String> recipients= message.getReceivers();
-
-        // If text contains a value, store the whisper recipients, and display the message
-        // Else check for the special server-client interactions
-        if(!text.equals("")) {
-            if(recipients.size() != userList.getItems().size())
-                storeWhisperGroup(recipients);
-            displayMessage(text, sender, recipients);
-        } else {
-            // If the sender is null, set the ListView
-            if(sender == null){
-                setUserList(recipients);
+                setSelectedUserList(this.client.getWhisperGroup());
             }
         }
     }
 
     /**
-     * Sends a message to the server for interpretation
-     * @param message- Message object containing sender, recipients, and text
+     * Update the UI when the model calls update.
+     * The update may change the appearance of the TextArea, and ListView.
+     * The update makes calls to the public interface of the model components to determine the new values to display.
+     * @param t An Observable -- not used.
+     * @param o An Object -- not used.
      */
-    private void sendMessage(Message message){
+    public void update(Observable t, Object o){
+        ArrayList<String> recipients= this.client.getUsers();
+        ArrayList<String> selectedUsers= this.client.getSelectedUsers();
+        Message message= this.client.getMessage();
+        String error= this.client.getError();
+
+        setUserList(recipients);
+        setSelectedUserList(selectedUsers);
         receiveMessage(message);
-    }
-
-    /**
-     * Stores the last group of recipients sent in a message so that it can be easily accessed again
-     * @param recipients- the users the message was sent to
-     */
-    private void storeWhisperGroup(ArrayList<String> recipients){
-        this.whisperGroup= recipients;
+        checkError(error);
     }
 
     /**

@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -8,7 +9,7 @@ import java.util.*;
  *      1. Users can not send blank messages
  *      2. If message is blank, a special case has occurred
  */
-public class Message {
+public class Message implements Serializable {
 
     private String sender;
     private ArrayList<String> receivers = new ArrayList<String>();
