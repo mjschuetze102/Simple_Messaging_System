@@ -147,6 +147,7 @@ public class ClientGUI extends Application {
 
         // Function called when programmed is closed
         stage.setOnCloseRequest(event -> {onClose();});
+        onStart();
 
         //////////////////////////////////////
         // Various tests on receiveMessage
@@ -268,6 +269,16 @@ public class ClientGUI extends Application {
     }
 
     /**
+     * Sets the ListView to contain the new recipients list
+     * @param recipients- the users the message was sent to
+     */
+    private void setUserList(ArrayList<String> recipients){
+        // Create an observable list from the list of recipients
+        ObservableList<String> names= FXCollections.observableArrayList(recipients);
+        userList.setItems(names);
+    }
+
+    /**
      * Append the message to the bottom of the TextArea
      * Displayed in either:
      *      [client]- Message
@@ -288,7 +299,7 @@ public class ClientGUI extends Application {
                 message+= recipients.get(index)+ "/ ";
             }
             // Add the last recipient to the string to avoid an extra '/'
-            message+= recipients.get(recipients.size() -1)+ " }";
+            message+= recipients.get(recipients.size() -1)+ " } ";
         }
 
         // Message will either be in '[client]-' or '[client] { recipient }-' form
@@ -308,21 +319,6 @@ public class ClientGUI extends Application {
             this.send.setDisable(true);
         else
             this.send.setDisable(false);
-    }
-
-    /**
-     * Called when program closes to tell server user has left
-     */
-    private void onClose(){
-        // Get the values of each of the fields
-        String clientName= this.clientName;
-        ArrayList<String> recipients= getRecipients();
-
-        // Create a new special case message for server to interpret
-        Message message= new Message(clientName, recipients, "");
-
-        // Call the sendMessage function with the message to send
-        sendMessage(message);
     }
 
     /////////////////////////////////////////////////////////////
@@ -405,6 +401,35 @@ public class ClientGUI extends Application {
     /////////////////////////////////////////////////////////////
 
     /**
+     * Called when program opens to tell server user has joined
+     */
+    private void onStart(){
+        // Get the values of each of the fields
+        String clientName= this.clientName;
+
+        // Create a new special case message for server to interpret
+        Message message= new Message(clientName, new ArrayList<>(), "");
+
+        // Call the sendMessage function with the message to send
+        sendMessage(message);
+    }
+
+    /**
+     * Called when program closes to tell server user has left
+     */
+    private void onClose(){
+        // Get the values of each of the fields
+        String clientName= this.clientName;
+        ArrayList<String> recipients= new ArrayList<>(userList.getItems());
+
+        // Create a new special case message for server to interpret
+        Message message= new Message(clientName, recipients, "");
+
+        // Call the sendMessage function with the message to send
+        sendMessage(message);
+    }
+
+    /**
      * Gets a message from the server and interprets it in one of two ways
      *      1. If text contains a value, displays the message for the user to see
      *      2. If text is "" and sender is null, update the user list
@@ -424,9 +449,7 @@ public class ClientGUI extends Application {
         } else {
             // If the sender is null, set the ListView
             if(sender == null){
-                // Create an observable list from the list of recipients
-                ObservableList<String> names= FXCollections.observableArrayList(recipients);
-                userList.setItems(names);
+                setUserList(recipients);
             }
         }
     }
