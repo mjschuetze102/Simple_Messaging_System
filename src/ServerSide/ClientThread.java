@@ -1,11 +1,12 @@
+package ServerSide;
+
+import java.io.*;
+import java.net.*;
+
 /**
  *
  * Created by Michael on 12/10/2016.
  */
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
 
 public class ClientThread extends Thread{
 
@@ -20,7 +21,7 @@ public class ClientThread extends Thread{
     ObjectOutputStream out;
 
     /**
-     * Constructor for the ClientThread class
+     * Constructor for the ServerSide.ClientThread class
      * @param socket- the accepted ServerSocket the system will be running on
      */
     public ClientThread(Socket socket){
@@ -37,7 +38,7 @@ public class ClientThread extends Thread{
 
                 Message m = (Message) in.readObject();
                 if ( !m.getMessage().equals("") ){
-                    System.err.print("Faulty Identifier Message!! Possible false name.");
+                    System.err.print("Faulty Identifier ServerSide.Message!! Possible false name.");
                 }else {
                     OutputManager.addOutput(m.getSender(), out);
                 }
@@ -55,7 +56,7 @@ public class ClientThread extends Thread{
                 }while (true);
 
             }catch (ClassNotFoundException NFex){
-                System.err.println("Getting Message err: " + NFex.getMessage());
+                System.err.println("Getting ServerSide.Message err: " + NFex.getMessage());
             }catch (EOFException eof){
                 in.close();
                 OutputManager.removeOutput(clientName);
@@ -63,7 +64,7 @@ public class ClientThread extends Thread{
             }
 
         }catch (IOException IOex){
-            System.err.println("Server: " + IOex.getMessage());
+            System.err.println("ServerSide.Server: " + IOex.getMessage());
         }
 
 

@@ -1,8 +1,6 @@
-/**
+package ServerSide; /**
  * Created by Oscar on 12/13/2016.
  */
-
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -42,7 +40,7 @@ public class OutputManager {
             try{
                 outputs.get(recipient).writeObject(m);
             }catch (IOException IOex){
-                System.err.print("\nSending Message err: " + IOex.getMessage());
+                System.err.print("\nSending ServerSide.Message err: " + IOex.getMessage());
             }
         }
     }

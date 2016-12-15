@@ -1,11 +1,12 @@
-/**
+package ClientSide; /**
  * Created by Oscar on 12/14/2016.
  */
+
+import ServerSide.Message;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
-import java.util.*;
 
 public class InputManager extends Thread{
 
