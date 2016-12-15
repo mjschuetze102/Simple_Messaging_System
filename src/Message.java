@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -8,22 +9,22 @@ import java.util.*;
  *      1. Users can not send blank messages
  *      2. If message is blank, a special case has occurred
  */
-public class Message {
+public class Message implements Serializable {
 
     private String sender;
-    private ArrayList<String> recievers = new ArrayList<String>();
+    private ArrayList<String> receivers = new ArrayList<String>();
     private String message = "";
 
-    public Message(String sender, ArrayList<String> recievers, String message){
+    public Message(String sender, ArrayList<String> receivers, String message){
 
         this.sender = sender;
-        this.recievers = recievers;
+        this.receivers = receivers;
         this.message = message;
 
     }
     
     public String getSender(){return this.sender;}
-    public ArrayList<String> getRecievers(){return this.recievers;}
+    public ArrayList<String> getReceivers(){return this.receivers;}
     public String getMessage(){return this.message;}
 
 

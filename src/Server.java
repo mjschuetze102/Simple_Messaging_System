@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import javax.swing.*;
 
 /**
@@ -32,11 +33,9 @@ public class Server extends JFrame {
         userText= new JTextField();
         userText.setEditable(false);
         userText.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent event){
-                    sendMessage(event.getActionCommand());
+            event -> {
+                    sendMessage(new Message("Server", new ArrayList<>(), userText.getText()));
                     userText.setText("");
-                }
             }
         );
         add(userText, BorderLayout.NORTH);
@@ -61,7 +60,7 @@ public class Server extends JFrame {
                     setupSteams();
                     allowChat();
                 } catch(EOFException eof) {
-                    showMessage("\n Server Connection Ended");
+                    showMessage("\nServer Connection Ended");
                 } finally {
                     closeConnection();
                 }
@@ -108,17 +107,17 @@ public class Server extends JFrame {
      * @throws IOException
      */
     private void allowChat() throws IOException {
-        String message = "You are now connected!";
+        Message message = new Message("Server", new ArrayList<>(), "You are now connected!");
         sendMessage(message);
         ableToType(true);
         do {
             try {
-                message = inputStream.readObject().toString();
-                showMessage("\n"+ message);
+                message = (Message) inputStream.readObject();
+                showMessage("\n"+ message.getMessage() +" XD");
             } catch(ClassNotFoundException cnf) {
                 showMessage("\nUser has not sent appropriate data");
             }
-        } while(!message.equals("CLIENT - END"));
+        } while(message != null && !message.getMessage().equals("END"));
     }
 
     /**
@@ -140,9 +139,9 @@ public class Server extends JFrame {
      * Sends message to the client
      * @param message- string for message being sent to client
      */
-    private void sendMessage(String message){
+    private void sendMessage(Message message){
         try {
-            outputStream.writeObject("SERVER - "+ message);
+            outputStream.writeObject(message);
             outputStream.flush();
             showMessage("\nSERVER - "+ message);
         } catch(IOException io) {
