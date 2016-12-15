@@ -1,16 +1,17 @@
-package ClientSide; /**
- * Created by Oscar on 12/14/2016.
- */
-
-import ServerSide.Message;
+package ClientSide;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.net.Socket;
+import java.net.*;
 
+/**
+ * Created by Oscar on 12/14/2016.
+ */
 public class InputManager extends Thread{
 
     private ObjectInputStream in;
+
+    private Client client;
 
     /**
      * Use this to manage the input for the client
@@ -23,7 +24,8 @@ public class InputManager extends Thread{
      *
      * @param socket - the socket that has been connected to in order
      */
-    public InputManager(Socket socket){
+    public InputManager(Client client, Socket socket){
+        this.client= client;
 
         try{
             in = new ObjectInputStream(socket.getInputStream());
@@ -45,6 +47,7 @@ public class InputManager extends Thread{
                  * Add here what to do with the message that was just recieved.
                  * Have it call other class functions to update the GUI
                  */
+                this.client.receiveMessage(m);
 
             }catch (IOException IOex){
                 System.err.print("\nRetreaving data from server: " + IOex.getMessage());
@@ -52,6 +55,5 @@ public class InputManager extends Thread{
                 System.err.print("\nRetreaving data from server: " + CLnotFound.getMessage());
             }
         }
-
     }
 }

@@ -15,12 +15,12 @@ import java.util.Observer;
 /**
  * Creates the GUI for the clients to view
  * Created by Michael on 12/10/2016.
+ * Updated by Michael on 12/14/2016.
  */
-
 public class ClientGUI extends Application implements Observer {
 
     ///////////////////////////
-    // ClientSide.ClientGUI Variables
+    // ClientGUI Variables
     ///////////////////////////
 
     /** The underlying client model */
@@ -43,7 +43,7 @@ public class ClientGUI extends Application implements Observer {
     /////////////////////////////////////////////////////////////
 
     /**
-     * Construct a ClientSide.Client object
+     * Construct a Client object
      */
     public ClientGUI() {
         this.client= new Client();
@@ -139,7 +139,7 @@ public class ClientGUI extends Application implements Observer {
         // Function called when programmed is closed
         stage.setOnCloseRequest(event -> {this.client.onClose();});
 
-        // Start ClientSide.Client
+        // Start Client
         this.client.startRunning();
     }
 
@@ -311,7 +311,7 @@ public class ClientGUI extends Application implements Observer {
             return;
 
         // Send the error to be displayed in TextArea
-        setDisplay(error, "Server", new ArrayList<>());
+        setDisplay(error, "ServerSide.Server", new ArrayList<>());
     }
 
     /////////////////////////////////////////////////////////////

@@ -8,19 +8,19 @@ import java.util.Observable;
 /**
  * The model for the client
  * Created by Michael on 12/10/2016.
+ * Updated by Michael on 12/14/2016.
  * TODO: setClientName
  */
 public class Client extends Observable {
 
     private ObjectOutputStream output;
-    private ObjectInputStream input;
     private Socket connection;
 
     /** Name of the host IP address */
     final String HOST = "localhost";
 
     /** The name of the client */
-    private String clientName = "ClientSide.Client";
+    private String clientName = "Client";
 
     /** The group of users using the messaging system */
     private ArrayList<String> users;
@@ -34,14 +34,11 @@ public class Client extends Observable {
     /** The new message being read by system */
     private Message message;
 
-    /** The text of the last message */
-    private String text;
-
-    /** The error that has occured */
+    /** The error that has occurred */
     private String error;
 
     /**
-     *  Constructor class for ClientSide.Client model
+     *  Constructor class for Client model
      */
     public Client(){
         // Initiate the variables
@@ -50,6 +47,10 @@ public class Client extends Observable {
         this.whisperGroup= new ArrayList<>();
         this.message= null;
     }
+
+    /////////////////////////////////////////////////////////////
+    //  Client Connection Functions
+    /////////////////////////////////////////////////////////////
 
     /**
      * Connect to the server
@@ -60,10 +61,8 @@ public class Client extends Observable {
             setupStreams();
             // Tell the server a new user has joined
             onStart();
-            whileChatting();
-
         } catch (EOFException EOFex) {
-            setError("ClientSide.Client terminated connection");
+            setError("Client terminated connection");
         } catch (IOException IOex) {
             IOex.printStackTrace();
         } finally {
@@ -86,22 +85,8 @@ public class Client extends Observable {
     private void setupStreams() throws IOException{
         output = new ObjectOutputStream(connection.getOutputStream());
         output.flush();
-        input = new ObjectInputStream(connection.getInputStream());
+        InputManager inputManager= new InputManager(this, connection);
         setError("Streams are set up...");
-    }
-
-    /**
-     * This runs while chatting with the server...
-     */
-    private void whileChatting() throws IOException{
-        do {
-            try{
-                Message message = (Message) input.readObject();
-                receiveMessage(message);
-            }catch (ClassNotFoundException ClsLost){
-                setError("Unknown Object Type.");
-            }
-        } while(!text.equals("END"));
     }
 
     /**
@@ -111,7 +96,6 @@ public class Client extends Observable {
         setError("Closing the client...");
         try{
             output.close();
-            input.close();
             connection.close();
         }catch (IOException IOex){
             IOex.printStackTrace();
@@ -131,7 +115,7 @@ public class Client extends Observable {
     }
 
     /////////////////////////////////////////////////////////////
-    //  ClientSide.Client Interactions with GUI
+    //  Client Interactions with GUI
     /////////////////////////////////////////////////////////////
 
     /**
@@ -187,7 +171,7 @@ public class Client extends Observable {
     }
 
     /////////////////////////////////////////////////////////////
-    //  ClientSide.Client Interactions with Server
+    //  Client Interactions with ServerSide.Server
     /////////////////////////////////////////////////////////////
 
     /**
@@ -214,9 +198,6 @@ public class Client extends Observable {
                 setUsers(recipients);
             }
         }
-
-        // Set text so that client knows when to close
-        this.text= text;
 
         // Notify the observer of the changes
         setChanged();

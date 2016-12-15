@@ -6,6 +6,7 @@ import java.net.*;
 /**
  *
  * Created by Michael on 12/10/2016.
+ * Updated by Oscar on 12/12/2016
  */
 
 public class ClientThread extends Thread{
@@ -38,7 +39,7 @@ public class ClientThread extends Thread{
 
                 Message m = (Message) in.readObject();
                 if ( !m.getMessage().equals("") ){
-                    System.err.print("Faulty Identifier ServerSide.Message!! Possible false name.");
+                    System.err.print("Faulty Identifier ClientSide.Message!! Possible false name.");
                 }else {
                     OutputManager.addOutput(m.getSender(), out);
                 }
@@ -56,7 +57,7 @@ public class ClientThread extends Thread{
                 }while (true);
 
             }catch (ClassNotFoundException NFex){
-                System.err.println("Getting ServerSide.Message err: " + NFex.getMessage());
+                System.err.println("Getting ClientSide.Message err: " + NFex.getMessage());
             }catch (EOFException eof){
                 in.close();
                 OutputManager.removeOutput(clientName);
