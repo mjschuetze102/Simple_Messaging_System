@@ -1,15 +1,20 @@
 package ClientSide;
 
+import javafx.concurrent.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.*;
+import java.util.ArrayList;
+import Message.*;
 
 /**
+ * Reads the output from the server
  * Created by Oscar on 12/14/2016.
+ * Updated by Michael on 12/15/2016.
  */
-public class InputManager extends Thread{
+public class InputManager extends Service {
 
-    private ObjectInputStream in;
+    private ObjectInputStream input;
 
     private Client client;
 
@@ -28,32 +33,35 @@ public class InputManager extends Thread{
         this.client= client;
 
         try{
-            in = new ObjectInputStream(socket.getInputStream());
+            input = new ObjectInputStream(socket.getInputStream());
         }catch (IOException IOex){
             System.err.print("\nOpening inconnection: " + IOex.getMessage());
         }
-
     }
 
-    @Override
-    public void run() {
-
-        while(true){
-            try{
-                Message m = (Message) in.readObject();
-
-                /**
-                 * TODO
-                 * Add here what to do with the message that was just recieved.
-                 * Have it call other class functions to update the GUI
-                 */
-                this.client.receiveMessage(m);
-
-            }catch (IOException IOex){
-                System.err.print("\nRetreaving data from server: " + IOex.getMessage());
-            }catch (ClassNotFoundException CLnotFound){
-                System.err.print("\nRetreaving data from server: " + CLnotFound.getMessage());
+    protected Task<Message> createTask() {
+        return new Task<Message>() {
+            protected Message call()
+                    throws IOException, ClassNotFoundException {
+                Message result = null;
+                try {
+                    result= (Message) input.readObject();
+                } finally {
+                    if (input != null) {
+                        input.close();
+                    }
+                }
+                return result;
             }
+        };
+    }
+
+    public void close() {
+        try{
+            input.close();
+        }catch (IOException IOex){
+            System.err.print("\nOpening inconnection: " + IOex.getMessage());
+            this.client.receiveMessage(new Message("Server", new ArrayList<>(), "Connection has been closed."+ IOex.getMessage()));
         }
     }
 }
