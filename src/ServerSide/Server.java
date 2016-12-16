@@ -2,14 +2,13 @@ package ServerSide;
 
 import java.io.*;
 import java.net.*;
-import javax.swing.*;
 
 /**
  * Runs the server for the project
  * Created by Michael on 12/10/2016.
  * Updated by Oscar on 12/14/2016.
  */
-public class Server extends JFrame {
+public class Server {
 
     // Predefined variables
     final int PORT = 9001;
@@ -33,7 +32,7 @@ public class Server extends JFrame {
                     waitForConnection();
                     setupThread();
                 } catch (EOFException eof) {
-                    System.err.print("\n ServerSide.Server Connection Ended");
+                    System.err.print("\nServer Connection Ended");
                 }
             }
         } catch(IOException io){
@@ -47,6 +46,9 @@ public class Server extends JFrame {
      */
     private void waitForConnection() throws IOException {
         socket = serverSocket.accept();
+
+        // Display that the socket has been accepted
+        System.out.println("\nSocket has been connected");
     }
 
     /**
@@ -57,5 +59,8 @@ public class Server extends JFrame {
         // Sets up the output stream to send data and flushes out data
         ClientThread thread = new ClientThread(socket);
         thread.start();
+
+        // Display that thread has been created
+        System.out.println("\nThread has been created");
     }
 }
