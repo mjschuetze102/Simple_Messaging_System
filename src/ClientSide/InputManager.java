@@ -1,10 +1,12 @@
 package ClientSide;
 
-import javafx.concurrent.*;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.*;
 import java.util.ArrayList;
+
+import javafx.application.Platform;
 import Message.*;
 
 /**
@@ -12,7 +14,7 @@ import Message.*;
  * Created by Oscar on 12/14/2016.
  * Updated by Michael on 12/15/2016.
  */
-public class InputManager extends Service {
+public class InputManager extends Thread {
 
     private ObjectInputStream input;
 
@@ -39,21 +41,32 @@ public class InputManager extends Service {
         }
     }
 
-    protected Task<Message> createTask() {
-        return new Task<Message>() {
-            protected Message call()
-                    throws IOException, ClassNotFoundException {
-                Message result = null;
-                try {
-                    result= (Message) input.readObject();
-                } finally {
-                    if (input != null) {
-                        input.close();
+    @Override
+    public void run(){
+        try {
+            do {
+                Message message = (Message) input.readObject();
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        client.receiveMessage(message);
                     }
-                }
-                return result;
+                });
+
+            }while (true);
+
+        }catch (ClassNotFoundException NFex){
+            System.err.println("Getting Message err: " + NFex.getMessage());
+        }catch (EOFException eof){
+            try {
+                input.close();
+            } catch (IOException io){
+                System.err.println(io.toString());
             }
-        };
+        } catch (IOException io){
+            System.err.println(io.toString());
+        }
     }
 
     public void close() {
