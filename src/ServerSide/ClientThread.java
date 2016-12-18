@@ -15,8 +15,6 @@ import Message.*;
 public class ClientThread extends Thread{
 
     // Predefined variables
-    final int PORT = 9001;
-    String host = "localhost";
     String clientName = "";
 
     // Undefined variables

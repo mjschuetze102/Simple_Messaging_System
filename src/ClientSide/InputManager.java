@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.*;
 import java.util.ArrayList;
-
 import javafx.application.Platform;
 import Message.*;
 
@@ -41,12 +40,17 @@ public class InputManager extends Thread {
         }
     }
 
+    /**
+     * Reads messages from Server and displays it for Client
+     */
     @Override
     public void run(){
         try {
             do {
+                // Receive Message from the server
                 Message message = (Message) input.readObject();
 
+                // Allows for the UI to update while the client is still receiving data
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
@@ -59,16 +63,16 @@ public class InputManager extends Thread {
         }catch (ClassNotFoundException NFex){
             System.err.println("Getting Message err: " + NFex.getMessage());
         }catch (EOFException eof){
-            try {
-                input.close();
-            } catch (IOException io){
-                System.err.println(io.toString());
-            }
+            // When the server closes, close the client
+            client.onClose();
         } catch (IOException io){
             System.err.println(io.toString());
         }
     }
 
+    /**
+     * Closes the input stream
+     */
     public void close() {
         try{
             input.close();
