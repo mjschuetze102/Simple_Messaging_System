@@ -1,3 +1,5 @@
+package ClientSide;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,12 +11,13 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import Message.Message;
 
 /**
  * Creates the GUI for the clients to view
  * Created by Michael on 12/10/2016.
+ * Updated by Michael on 12/14/2016.
  */
-
 public class ClientGUI extends Application implements Observer {
 
     ///////////////////////////
@@ -299,19 +302,6 @@ public class ClientGUI extends Application implements Observer {
         setDisplay(message.getMessage(), message.getSender(), message.getReceivers());
     }
 
-    /**
-     * Gets the error from the model and interprets whether or not to display it
-     * @param error- the error being received from the model
-     */
-    private void checkError(String error){
-        // If there wasn't a error change don't display anything
-        if(error == null)
-            return;
-
-        // Send the error to be displayed in TextArea
-        setDisplay(error, "Server", new ArrayList<>());
-    }
-
     /////////////////////////////////////////////////////////////
     //  GUI Helper Functions
     /////////////////////////////////////////////////////////////
@@ -398,12 +388,10 @@ public class ClientGUI extends Application implements Observer {
         ArrayList<String> recipients= this.client.getUsers();
         ArrayList<String> selectedUsers= this.client.getSelectedUsers();
         Message message= this.client.getMessage();
-        String error= this.client.getError();
 
         setUserList(recipients);
         setSelectedUserList(selectedUsers);
         receiveMessage(message);
-        checkError(error);
     }
 
     /**

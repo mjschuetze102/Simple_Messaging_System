@@ -1,24 +1,32 @@
+package ClientSide;
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Observable;
+import Message.Message;
+import jdk.internal.util.xml.impl.Input;
 
 /**
  * The model for the client
  * Created by Michael on 12/10/2016.
+ * Updated by Michael on 12/14/2016.
  * TODO: setClientName
  */
 public class Client extends Observable {
 
+    private InputManager inputManager;
     private ObjectOutputStream output;
-    private ObjectInputStream input;
     private Socket connection;
 
     /** Name of the host IP address */
     final String HOST = "localhost";
 
+    /** Number of the port connecting to */
+    final int PORT = 9001;
+
     /** The name of the client */
-    private String clientName = "Client";
+    private String clientName = "mjschuetze";
 
     /** The group of users using the messaging system */
     private ArrayList<String> users;
@@ -32,12 +40,6 @@ public class Client extends Observable {
     /** The new message being read by system */
     private Message message;
 
-    /** The text of the last message */
-    private String text;
-
-    /** The error that has occured */
-    private String error;
-
     /**
      *  Constructor class for Client model
      */
@@ -49,83 +51,74 @@ public class Client extends Observable {
         this.message= null;
     }
 
+    /////////////////////////////////////////////////////////////
+    //  Client Connection Functions
+    /////////////////////////////////////////////////////////////
+
     /**
-     * Connect to the server
+     * Run all the functions requires to start the connection to server
      */
     public void startRunning(){
         try {
+            // Connect a new socket
             connectToServer();
+            // Set up the input and output streams for the socket
             setupStreams();
             // Tell the server a new user has joined
             onStart();
-            whileChatting();
-
         } catch (EOFException EOFex) {
-            setError("Client terminated connection");
+            // Tell the GUI that the connection was terminated
+            receiveMessage(new Message("Client", new ArrayList<>(), "Connection terminated."));
+            closeClient();
         } catch (IOException IOex) {
             IOex.printStackTrace();
-        } finally {
             closeClient();
         }
     }
 
     /**
-     * Connect to server
+     * Connects to the server and creates a socket
      */
     private void connectToServer() throws IOException{
-        setError("Attempting connection..");
-        connection = new Socket(InetAddress.getByName(HOST), 9001);
-        setError("Connected to:" + connection.getInetAddress().getHostName());
+        // Tell the GUI that it is searching for a connection
+        receiveMessage(new Message("Client", new ArrayList<>(), "Searching for connection."));
+
+        connection = new Socket(InetAddress.getByName(HOST), PORT);
+
+        // Tell the GUI that a connection was found
+        receiveMessage(new Message("Client", new ArrayList<>(), "Connected to: "+ connection.getInetAddress().getHostName()+ ":"+
+                                                                connection.getInetAddress().getHostAddress()));
     }
 
     /**
-     * Set up in out streams
+     * Sets up the clients input and output streams
      */
     private void setupStreams() throws IOException{
         output = new ObjectOutputStream(connection.getOutputStream());
         output.flush();
-        input = new ObjectInputStream(connection.getInputStream());
-        setError("Streams are set up...");
+
+        // Create the thread that will receive messages from the server
+        inputManager= new InputManager(this, connection);
+        inputManager.start();
+
+        // Tell the GUI that the streams have been set up
+        receiveMessage(new Message("Client", new ArrayList<>(), "Streams have been set up."));
     }
 
     /**
-     * This runs while chatting with the server...
-     */
-    private void whileChatting() throws IOException{
-        do {
-            try{
-                Message message = (Message) input.readObject();
-                receiveMessage(message);
-            }catch (ClassNotFoundException ClsLost){
-                setError("Unknown Object Type.");
-            }
-        } while(!text.equals("END"));
-    }
-
-    /**
-     * Closing all the streams and sockets in the client
+     * Closes the client and all of its streams and socket
      */
     private void closeClient(){
-        setError("Closing the client...");
+        // Tell the GUI that the connection is being closed
+        receiveMessage(new Message("Client", new ArrayList<>(), "Closing connection."));
+
         try{
             output.close();
-            input.close();
+            inputManager.close();
             connection.close();
         }catch (IOException IOex){
-            IOex.printStackTrace();
+            System.err.print("\nIOex Client-closeClient: " + IOex.getMessage());
         }
-    }
-
-    /////////////////////////////////////////////////////////////
-    //  Helper Functions
-    /////////////////////////////////////////////////////////////
-
-    /**
-     * Resets variables to null to prevent them from being displayed twice
-     */
-    private void resetToDefault(){
-        this.message= null;
-        this.error= null;
     }
 
     /////////////////////////////////////////////////////////////
@@ -159,6 +152,9 @@ public class Client extends Observable {
 
         // Call the sendMessage function with the message to send
         sendMessage(message);
+
+        // Close the client's connection
+        closeClient();
     }
 
     /**
@@ -213,9 +209,6 @@ public class Client extends Observable {
             }
         }
 
-        // Set text so that client knows when to close
-        this.text= text;
-
         // Notify the observer of the changes
         setChanged();
         notifyObservers();
@@ -231,7 +224,10 @@ public class Client extends Observable {
             output.writeObject(message);
             output.flush();
         }catch (IOException IOex){
-            setError("Error sending message...");
+            System.err.print("\nIOex Client-sendMessage: " + IOex.getMessage());
+
+            // Tell the GUI that the the message couldn't send
+            receiveMessage(new Message("Client", new ArrayList<>(), "Error: Could not send message."));
 
             // Notify the observer of the changes
             setChanged();
@@ -319,14 +315,9 @@ public class Client extends Observable {
     }
 
     /**
-     * Gets the error message to be displayed to the user
-     * @return String containing the error message
+     * Resets variables to null to prevent them from being displayed twice
      */
-    public String getError() { return this.error; }
-
-    /**
-     * Sets the error message to be displayed to the user
-     * @param error- the error to be displayed
-     */
-    private void setError(String error) { this.error= error; }
+    private void resetToDefault(){
+        this.message= null;
+    }
 }
