@@ -204,7 +204,7 @@ public class ClientGUI extends Application implements Observer {
                                   TextField textInput, Button send){
         // Event Handlers for fields
         userList.setOnMouseClicked(event -> {this.client.changeSelectedUsers(userList.getSelectionModel().getSelectedItem());});
-        deselect.setOnAction(event -> {userList.getSelectionModel().clearSelection();});
+        deselect.setOnAction(event -> {this.client.clearSelectedUsers(); userList.getSelectionModel().clearSelection();});
         textInput.setOnKeyReleased(event -> {toggleSend(); actionCommands();});
         send.setOnAction(event -> {createMessage();});
 

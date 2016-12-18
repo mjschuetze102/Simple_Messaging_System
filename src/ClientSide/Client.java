@@ -180,6 +180,13 @@ public class Client extends Observable {
         resetToDefault();
     }
 
+    /**
+     * Clears the list of selected users
+     */
+    public void clearSelectedUsers(){
+        this.selectedUsers.clear();
+    }
+
     /////////////////////////////////////////////////////////////
     //  Client Interactions with Server
     /////////////////////////////////////////////////////////////
