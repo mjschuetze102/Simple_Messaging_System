@@ -204,7 +204,7 @@ public class ClientGUI extends Application implements Observer {
                                   TextField textInput, Button send){
         // Event Handlers for fields
         userList.setOnMouseClicked(event -> {this.client.changeSelectedUsers(userList.getSelectionModel().getSelectedItem());});
-        deselect.setOnAction(event -> {this.client.clearSelectedUsers(); userList.getSelectionModel().clearSelection();});
+        deselect.setOnAction(event -> {this.client.clearSelectedUsers();});
         textInput.setOnKeyReleased(event -> {toggleSend(); actionCommands();});
         send.setOnAction(event -> {createMessage();});
 
@@ -366,13 +366,13 @@ public class ClientGUI extends Application implements Observer {
             // Check if the second character sets off the respond command
             if(text.charAt(1) == 'r' || text.charAt(1) == 'w'){
                 // Check that the conditions for replying to a whisper are met
-                if(this.client.getWhisperGroup() == null)
+                if(this.client.getWhisperGroup().size() == 0)
                     return;
 
                 // Clear TextField, toggle Send, and change ListView
                 this.textInput.clear();
                 toggleSend();
-                setSelectedUserList(this.client.getWhisperGroup());
+                this.client.selectWhisperGroup();
             }
         }
     }

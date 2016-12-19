@@ -5,7 +5,6 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Observable;
 import Message.Message;
-import jdk.internal.util.xml.impl.Input;
 
 /**
  * The model for the client
@@ -181,10 +180,27 @@ public class Client extends Observable {
     }
 
     /**
+     * Changes the list of selected users to the whisper group
+     */
+    public void selectWhisperGroup(){
+        setSelectedUsers(this.whisperGroup);
+
+        // Notify the observer of the changes
+        setChanged();
+        notifyObservers();
+        resetToDefault();
+    }
+
+    /**
      * Clears the list of selected users
      */
     public void clearSelectedUsers(){
         this.selectedUsers.clear();
+
+        // Notify the observer of the changes
+        setChanged();
+        notifyObservers();
+        resetToDefault();
     }
 
     /////////////////////////////////////////////////////////////
