@@ -42,6 +42,7 @@ public class ClientThread extends Thread{
                 if ( !m.getMessage().equals("") ){
                     System.err.print("Faulty Identifier Message!! Possible false name.");
                 }else {
+                    clientName= m.getSender();
                     OutputManager.addOutput(m.getSender(), out);
 
                     // Display that the Client has been added to the ClientList
@@ -49,12 +50,17 @@ public class ClientThread extends Thread{
                 }
 
                 // Send a message to the client saying the connection has been established
-                m= new Message("Server", new ArrayList<>(), "Connection has been established.");
+                ArrayList<String> client= new ArrayList<>(); client.add(clientName);
+                m= new Message("Server", client, "Connection has been established.");
                 OutputManager.sendMessage(m);
 
-                // Send the client list to new client
+                // Send the new client list to all the clients
                 m = new Message( null, OutputManager.getClientList(), "" );
                 OutputManager.sendMessage( m );
+
+                // Send message saying a new client has joined
+                m = new Message("Server", OutputManager.getClientList(), clientName+ " has joined the chat.");
+                OutputManager.sendMessage(m);
 
                 // Display that the clientList has been sent
                 System.out.println("\nClientList has been sent");
@@ -79,6 +85,16 @@ public class ClientThread extends Thread{
                 in.close();
                 OutputManager.removeOutput(clientName);
                 socket.close();
+
+                Message m;
+
+                // Send the new client list to all the clients
+                m = new Message( null, OutputManager.getClientList(), "" );
+                OutputManager.sendMessage( m );
+
+                // Send message saying a client has left
+                m = new Message("Server", OutputManager.getClientList(), clientName+ " has left the chat.");
+                OutputManager.sendMessage(m);
 
                 // Display that the socket and streams has been closed
                 System.out.println("\nStreams and socket have been closed");

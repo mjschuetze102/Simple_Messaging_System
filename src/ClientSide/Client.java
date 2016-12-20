@@ -99,9 +99,6 @@ public class Client extends Observable {
         // Create the thread that will receive messages from the server
         inputManager= new InputManager(this, connection);
         inputManager.start();
-
-        // Tell the GUI that the streams have been set up
-        receiveMessage(new Message("Client", new ArrayList<>(), "Streams have been set up."));
     }
 
     /**
