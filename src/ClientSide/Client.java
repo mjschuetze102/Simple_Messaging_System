@@ -221,8 +221,13 @@ public class Client extends Observable {
         // If text contains a value, store the whisper recipients, and display the message
         // Else check for the special server-client interactions
         if(!text.equals("")) {
-            if(recipients.size() != users.size())
+            if(recipients.size() != users.size()) {
+                // Remove yourself from the recipients list
+                recipients.remove(clientName);
+
+                // Sets the whisper group to those involved in the whispering
                 setWhisperGroup(recipients);
+            }
 
             setMessage(message);
         } else {

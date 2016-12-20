@@ -316,8 +316,13 @@ public class ClientGUI extends Application implements Observer {
 
         // If there are selected items, copy them into an ArrayList
         // Else create a new ArrayList with all items
-        if(!this.client.getSelectedUsers().isEmpty())
-            recipients= new ArrayList<>(this.client.getSelectedUsers());
+        if(!this.client.getSelectedUsers().isEmpty()){
+            recipients = new ArrayList<>(this.client.getSelectedUsers());
+
+            // Add Client if they are not on the recipient list so they get a copy
+            if(!recipients.contains(this.client.getClientName()))
+                recipients.add(this.client.getClientName());
+        }
         else
             recipients= new ArrayList<>(this.client.getUsers());
 
