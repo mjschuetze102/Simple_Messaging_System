@@ -10,8 +10,9 @@ import Message.*;
  * Created by Michael on 12/10/2016.
  * Updated by Oscar on 12/12/2016.
  * Updated by Michael on 12/15/2016.
+ * Updated by Michael on 12/20/2016.
+ *      Added functionality in run(), added checkNameChange()
  */
-
 public class ClientThread extends Thread{
 
     // Predefined variables
@@ -37,11 +38,13 @@ public class ClientThread extends Thread{
             out = new ObjectOutputStream(socket.getOutputStream());
 
             try {
-
+                // Receive the name of the client
+                // Message should be clientName, new ArrayList(), ""
                 Message m = (Message) in.readObject();
                 if ( !m.getMessage().equals("") ){
                     System.err.print("Faulty Identifier Message!! Possible false name.");
                 }else {
+                    // Add the client to the ClientList
                     clientName= m.getSender();
                     OutputManager.addOutput(m.getSender(), out);
 
@@ -66,17 +69,20 @@ public class ClientThread extends Thread{
                 System.out.println("\nClientList has been sent");
 
                 do {
-
+                    // Read in the message being sent
                     m = (Message) in.readObject();
 
                     // Display that the message has been read
                     System.out.println("\nMessage: "+ m.toString()+ " has been read.");
 
-                    OutputManager.sendMessage(m);
+                    // If client is not changing their name, display the message
+                    if(!checkNameChange(m)){
+                        // Send the message
+                        OutputManager.sendMessage(m);
 
-                    // Display that the message has been sent out
-                    System.out.println("\nMessage: "+ m.toString()+ " has been sent.");
-
+                        // Display that the message has been sent out
+                        System.out.println("\nMessage: "+ m.toString()+ " has been sent.");
+                    }
                 }while (true);
 
             }catch (ClassNotFoundException NFex){
@@ -103,5 +109,39 @@ public class ClientThread extends Thread{
         }catch (IOException IOex){
             System.err.println("Server: " + IOex.getMessage());
         }
+    }
+
+    /**
+     * Interprets the message to see if the client changed their name
+     * @param m- Message sent by the Client
+     */
+    private boolean checkNameChange(Message m){
+        // If condition to change client name has occurred
+        // Message should be clientName, new ArrayList(), newName
+        if(m.getReceivers().size() == 0){
+            // Get the new and old client names
+            String oldUsername= m.getSender(); String newUsername= m.getMessage();
+
+            // Change the key/value pair for the ClientList
+            OutputManager.changeOutput(oldUsername, newUsername);
+
+            // Change the client's name to the new one
+            clientName= newUsername;
+
+            // Display that the client has changed their name
+            System.out.println("\nClient: "+ clientName+ " name change completed.");
+
+            // Send the new client list to all the clients
+            m = new Message( null, OutputManager.getClientList(), "" );
+            OutputManager.sendMessage( m );
+
+            // Send message saying a client has changed their name
+            m = new Message("Server", OutputManager.getClientList(), oldUsername+ " has changed their name to: "+ newUsername+ ".");
+            OutputManager.sendMessage(m);
+
+            return true;
+        }
+
+        return false;
     }
 }

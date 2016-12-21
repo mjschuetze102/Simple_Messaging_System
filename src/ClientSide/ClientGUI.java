@@ -348,8 +348,14 @@ public class ClientGUI extends Application implements Observer {
         // Create a new instance of the Message class
         Message message= new Message(clientName, recipients, text);
 
-        // Call the sendMessage function with the message to send
-        this.client.sendMessage(message);
+        // If Client is changing their name, finish the name changing process
+        // Else allow client to send the message
+        if(this.client.getChangeName()){
+            this.client.finishNameChange(message);
+        } else{
+            // Call the sendMessage function with the message to send
+            this.client.sendMessage(message);
+        }
     }
 
     /**
@@ -366,6 +372,10 @@ public class ClientGUI extends Application implements Observer {
         if(text.length() != 2)
             return;
 
+        // Check that client is not in the middle of changing their name
+        if(this.client.getChangeName())
+            return;
+
         // Check the first character to make sure it's an action character
         if(text.charAt(0) == '-' || text.charAt(0) == '/'){
             // Check if the second character sets off the respond command
@@ -378,6 +388,16 @@ public class ClientGUI extends Application implements Observer {
                 this.textInput.clear();
                 toggleSend();
                 this.client.selectWhisperGroup();
+            }
+
+            // Check if the second character sets off the change name command
+            if(text.charAt(1) == 'n'){
+                // Start the name changing process
+                this.client.startNameChange();
+
+                // Clear TextField, and toggle Send
+                this.textInput.clear();
+                toggleSend();
             }
         }
     }

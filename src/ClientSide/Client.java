@@ -10,7 +10,8 @@ import Message.Message;
  * The model for the client
  * Created by Michael on 12/10/2016.
  * Updated by Michael on 12/14/2016.
- * TODO: setClientName
+ * Updated by Michael on 12/21/2016.
+ *      Added startNameChange(), checkNameChange(), finishNameChange(), and changeName
  */
 public class Client extends Observable {
 
@@ -25,7 +26,7 @@ public class Client extends Observable {
     final int PORT = 9001;
 
     /** The name of the client */
-    private String clientName = "mjschuetze";
+    private String clientName = "owwlhdf";
 
     /** The group of users using the messaging system */
     private ArrayList<String> users;
@@ -35,6 +36,9 @@ public class Client extends Observable {
 
     /** The group of recipients in the last whisper */
     private ArrayList<String> whisperGroup;
+
+    /** Boolean value to see if name is being changed */
+    private boolean changeName;
 
     /** The new message being read by system */
     private Message message;
@@ -200,6 +204,33 @@ public class Client extends Observable {
         resetToDefault();
     }
 
+    /**
+     * Starts the name changing process
+     */
+    public void startNameChange(){
+        setChangeName(true);
+    }
+
+    /**
+     * Checks if the name is available to be changed to
+     * If so, the client's name will be changed
+     * @param message- Message containing the new client name
+     */
+    public void finishNameChange(Message message){
+        // Get the new username request
+        String newUsername= message.getMessage();
+
+        // Check that the username can be used
+        // If it can, change the name and send the message to the Server
+        if(checkNameChange(newUsername)){
+            sendMessage(new Message(clientName, new ArrayList<>(), newUsername));
+            setClientName(newUsername);
+        }
+
+        // Disallow further name changes until command is reentered
+        setChangeName(false);
+    }
+
     /////////////////////////////////////////////////////////////
     //  Client Interactions with Server
     /////////////////////////////////////////////////////////////
@@ -251,7 +282,7 @@ public class Client extends Observable {
         }catch (IOException IOex){
             System.err.print("\nIOex Client-sendMessage: " + IOex.getMessage());
 
-            // Tell the GUI that the the message couldn't send
+            // Tell the GUI that the message couldn't send
             receiveMessage(new Message("Client", new ArrayList<>(), "Error: Could not send message."));
 
             // Notify the observer of the changes
@@ -272,6 +303,14 @@ public class Client extends Observable {
      */
     public String getClientName() {
         return this.clientName;
+    }
+
+    /**
+     * Sets the value of the name the client will be referred to by
+     * @param clientName- new username the client will be going by
+     */
+    private void setClientName(String clientName){
+        this.clientName= clientName;
     }
 
     /**
@@ -324,6 +363,21 @@ public class Client extends Observable {
     }
 
     /**
+     * Gets boolean value of whether or not name is being changed
+     */
+    public boolean getChangeName(){
+        return this.changeName;
+    }
+
+    /**
+     * Sets boolean to allow/disallow a change of name
+     * @param changeName- boolean value determining whether the name is being changed or not
+     */
+    private void setChangeName(boolean changeName){
+        this.changeName= changeName;
+    }
+
+    /**
      * Gets the message that the server sent to the client
      * @return Message containing the message being sent
      */
@@ -344,5 +398,42 @@ public class Client extends Observable {
      */
     private void resetToDefault(){
         this.message= null;
+    }
+
+    /////////////////////////////////////////////////////////////
+    //  Client Helper Functions
+    /////////////////////////////////////////////////////////////
+
+    /**
+     * Checks whether the new username contains appropriate values
+     * @param username- the username in question
+     * @return boolean of whether or not the name can change
+     */
+    private boolean checkNameChange(String username){
+        // Sets the list of appropriate characters for a username
+        String alphabet= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_";
+
+        // If the username is already being used
+        if(users.contains(username)){
+            // Tell the GUI that the username was already in use
+            receiveMessage(new Message("Client", new ArrayList<>(), "Error: Username already in use."));
+            return false;
+        }
+
+        // Go through each character of the username to make sure it contains appropriate values
+        for(int index= 0; index < username.length(); index++){
+            // Get the character at the specified index
+            String character= String.valueOf(username.charAt(index));
+
+            // If the username is not made of only characters from accepted alphabet
+            if(!alphabet.contains(character)){
+                // Tell the GUI that the username contains inappropriate values
+                receiveMessage(new Message("Client", new ArrayList<>(), "Error: Username contains '" + character + "' which is not allowed in user names."));
+                return false;
+            }
+        }
+
+        // Return true if username has passed all the requirements
+        return true;
     }
 }

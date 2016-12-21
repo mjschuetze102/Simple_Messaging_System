@@ -8,6 +8,8 @@ import Message.*;
 
 /**
  * Created by Oscar on 12/13/2016.
+ * Updated by Michael on 12/20/2016.
+ *      Added changeOutput
  */
 public class OutputManager {
 
@@ -15,6 +17,15 @@ public class OutputManager {
 
     static synchronized void addOutput( String client, ObjectOutputStream out ){
         outputs.put(client, out);
+    }
+
+    static synchronized void changeOutput(String client, String newName){
+        // Get the output stream associated with the client
+        ObjectOutputStream out= outputs.get(client);
+
+        // Create the new key/value pair and remove the old one
+        outputs.put(newName, out);
+        outputs.remove(client);
     }
 
     static synchronized ArrayList<String> getClientList(){
