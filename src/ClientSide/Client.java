@@ -165,14 +165,17 @@ public class Client extends Observable {
         // Get the current selected user list
         ArrayList<String> selectedUsers= this.selectedUsers;
 
-        // If the user is on the list, remove them
-        // Else, add them to the list
-        if(selectedUsers.contains(user))
-            selectedUsers.remove(user);
-        else
-            selectedUsers.add(user);
+        // Prevent users from selecting themselves
+        if(!user.equals(this.clientName)){
+            // If the user is on the list, remove them
+            // Else, add them to the list
+            if (selectedUsers.contains(user))
+                selectedUsers.remove(user);
+            else
+                selectedUsers.add(user);
 
-        setSelectedUsers(selectedUsers);
+            setSelectedUsers(selectedUsers);
+        }
 
         // Notify the observer of the changes
         setChanged();
