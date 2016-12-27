@@ -361,8 +361,12 @@ public class ClientGUI extends Application implements Observer {
     /**
      * Checks the first two characters of TextField
      * If the first character is a '-' or '/'
+     *      If the second character is a 'c'
+     *          Cancel all previous commands that may have been entered
      *      If the second character is a 'r' or 'w'
-     *          Respond to the group of people tat were part of the last whisper
+     *          Respond to the group of people that were part of the last whisper
+     *      If the second character is an 'n'
+     *          Start the name changing process
      */
     private void actionCommands(){
         // Get the text from the textInput
@@ -372,12 +376,22 @@ public class ClientGUI extends Application implements Observer {
         if(text.length() != 2)
             return;
 
-        // Check that client is not in the middle of changing their name
-        if(this.client.getChangeName())
-            return;
-
         // Check the first character to make sure it's an action character
         if(text.charAt(0) == '-' || text.charAt(0) == '/'){
+            // Check if the second character sets off the cancel command
+            if(text.charAt(1) == 'c'){
+                this.client.cancelCommands();
+
+                // Clear TextField, and toggle Send
+                this.textInput.clear();
+                toggleSend();
+            }
+
+            // Check that client is not in the middle of changing their name
+            // Only above commands can be activated if user is doing one of these processes
+            if(this.client.getChangeName())
+                return;
+
             // Check if the second character sets off the respond command
             if(text.charAt(1) == 'r' || text.charAt(1) == 'w'){
                 // Check that the conditions for replying to a whisper are met

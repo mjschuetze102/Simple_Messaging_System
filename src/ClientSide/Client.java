@@ -234,6 +234,19 @@ public class Client extends Observable {
         setChangeName(false);
     }
 
+    /**
+     * Resets all variables related to the action commands
+     */
+    public void cancelCommands(){
+        clearSelectedUsers();
+        setChangeName(false);
+
+        // Notify the observer of the changes
+        setChanged();
+        notifyObservers();
+        resetToDefault();
+    }
+
     /////////////////////////////////////////////////////////////
     //  Client Interactions with Server
     /////////////////////////////////////////////////////////////
