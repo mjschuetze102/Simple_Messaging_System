@@ -26,7 +26,7 @@ public class Client extends Observable {
     final int PORT = 9001;
 
     /** The name of the client */
-    private String clientName = "owwlhdf";
+    private String clientName = "mjschuetze";
 
     /** The group of users using the messaging system */
     private ArrayList<String> users;
@@ -184,7 +184,7 @@ public class Client extends Observable {
      * Changes the list of selected users to the whisper group
      */
     public void selectWhisperGroup(){
-        setSelectedUsers(this.whisperGroup);
+        setSelectedUsers(new ArrayList<>(this.whisperGroup));
 
         // Notify the observer of the changes
         setChanged();
@@ -246,9 +246,10 @@ public class Client extends Observable {
         String sender= message.getSender();
         ArrayList<String> recipients= message.getReceivers();
 
-        // If text contains a value, store the whisper recipients, and display the message
+        // If text contains a value
         // Else check for the special server-client interactions
         if(!text.equals("")) {
+            // Store the whisper recipients
             if(recipients.size() != users.size()) {
                 // Remove yourself from the recipients list
                 recipients.remove(clientName);
@@ -257,6 +258,16 @@ public class Client extends Observable {
                 setWhisperGroup(recipients);
             }
 
+            // If the sender is the Server
+            // Cases that don't apply: client joins/leaves chat
+            if(message.getSender().equals("Server")){
+                // If a user has changed their name
+                if(message.getMessage().contains(" has changed their name to: "))
+                    // Update selectedUsers and whisperGroup to reflect the change
+                    changeUserGroups(message);
+            }
+
+            // Display the message
             setMessage(message);
         } else {
             // If the sender is null, set the ListView
@@ -428,12 +439,35 @@ public class Client extends Observable {
             // If the username is not made of only characters from accepted alphabet
             if(!alphabet.contains(character)){
                 // Tell the GUI that the username contains inappropriate values
-                receiveMessage(new Message("Client", new ArrayList<>(), "Error: Username contains '" + character + "' which is not allowed in user names."));
+                receiveMessage(new Message("Client", new ArrayList<>(), "Error: \""+ username+ "\" contains '" + character + "' which is not allowed in user names."));
                 return false;
             }
         }
 
         // Return true if username has passed all the requirements
         return true;
+    }
+
+    /**
+     * Only called when a user has changed their user name
+     * Checks to see if the user is in either whisperGroup or selectedUsers, and if found, changes their name
+     * @param message- Message sent from Server about user changing their name
+     */
+    private void changeUserGroups(Message message){
+        // Get the old user name that will be in the lists and the new one to replace the old one
+        String[] words= message.getMessage().split(" ");
+        String oldUserName= words[0]; String newUserName= words[words.length -1].substring(0, words[words.length -1].length() -1);
+
+        // If selectedUsers contained the old user name
+        if(selectedUsers.contains(oldUserName)){
+            // Replace the old user name with the new one
+            selectedUsers.set(selectedUsers.indexOf(oldUserName), newUserName);
+        }
+
+        // If whisperGroup contained the old user name
+        if(whisperGroup.contains(oldUserName)){
+            // Replace the old user name with the new one
+            whisperGroup.set(whisperGroup.indexOf(oldUserName), newUserName);
+        }
     }
 }
