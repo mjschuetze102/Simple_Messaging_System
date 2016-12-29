@@ -118,7 +118,9 @@ public class ClientThread extends Thread{
     private boolean checkNameChange(Message m){
         // If condition to change client name has occurred
         // Message should be clientName, new ArrayList(), newName
-        if(m.getReceivers().size() == 0){
+        // Receivers.size only 0 for name change and closing client
+        // Message is only "" for closing client
+        if(m.getReceivers().size() == 0 && !m.getMessage().equals("")){
             // Get the new and old client names
             String oldUsername= m.getSender(); String newUsername= m.getMessage();
 
