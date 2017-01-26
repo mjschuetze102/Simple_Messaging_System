@@ -12,6 +12,8 @@ import Message.Message;
  * Updated by Michael on 12/14/2016.
  * Updated by Michael on 12/21/2016.
  *      Added startNameChange(), checkNameChange(), finishNameChange(), and changeName
+ * Updated by Michael on 1/26/2017.
+ *      Added in a max length for usernames and messages
  */
 public class Client extends Observable {
 
@@ -20,13 +22,19 @@ public class Client extends Observable {
     private Socket connection;
 
     /** Name of the host IP address */
-    final String HOST = "localhost";
+    final String HOST = "129.21.139.115";
 
     /** Number of the port connecting to */
     final int PORT = 9001;
 
+    /** Max number of characters allowed in clientName */
+    final int MAX_USERNAME_LENGTH = 15;
+
+    /** Max number of characters allowed in a message */
+    final int MAX_MESSAGE_LENGTH = 250;
+
     /** The name of the client */
-    private String clientName = "mjschuetze";
+    private String clientName = "Client";
 
     /** The group of users using the messaging system */
     private ArrayList<String> users;
@@ -324,8 +332,15 @@ public class Client extends Observable {
     /////////////////////////////////////////////////////////////
 
     /**
+     * Gets the maximum length of a message
+     * @return int value determining maximum message length
+     */
+    public int getMAX_MESSAGE_LENGTH(){
+        return this.MAX_MESSAGE_LENGTH;
+    }
+
+    /**
      * Gets the name of the user using the messaging system
-     * Is not called in GUI update method
      * @return String containing the name of the user
      */
     public String getClientName() {
@@ -374,7 +389,6 @@ public class Client extends Observable {
 
     /**
      * Gets the last group of recipients sent in a whisper
-     * Is not called in GUI update method
      * @return ArrayList containing the list of recipients from the whisper
      */
     public ArrayList<String> getWhisperGroup(){
@@ -439,6 +453,13 @@ public class Client extends Observable {
     private boolean checkNameChange(String username){
         // Sets the list of appropriate characters for a username
         String alphabet= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_";
+
+        // If the username is longer than the allowed length
+        if(username.length() > this.MAX_USERNAME_LENGTH){
+            // Tell the GUI that the username was already in use
+            receiveMessage(new Message("Client", new ArrayList<>(), "Error: Username exceeds "+ this.MAX_USERNAME_LENGTH+ " characters"));
+            return false;
+        }
 
         // If the username is already being used
         if(users.contains(username)){

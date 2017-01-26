@@ -205,7 +205,7 @@ public class ClientGUI extends Application implements Observer {
         // Event Handlers for fields
         userList.setOnMouseClicked(event -> {this.client.changeSelectedUsers(userList.getSelectionModel().getSelectedItem());});
         deselect.setOnAction(event -> {this.client.clearSelectedUsers();});
-        textInput.setOnKeyReleased(event -> {toggleSend(); actionCommands();});
+        textInput.setOnKeyReleased(event -> {toggleSend(); checkMessageLength(); actionCommands();});
         send.setOnAction(event -> {createMessage();});
 
         // Allow for multiple users to be selected from the ListView
@@ -356,6 +356,26 @@ public class ClientGUI extends Application implements Observer {
             // Call the sendMessage function with the message to send
             this.client.sendMessage(message);
         }
+    }
+
+    /**
+     * Checks the length of the message
+     * Compares it to the max message length
+     * If the length exceeds max length, it will remove the last character
+     */
+    private void checkMessageLength(){
+        // Get the text from the textInput
+        String text= this.textInput.getText();
+
+        // Get the maximum length of a message
+        int maxLength= this.client.getMAX_MESSAGE_LENGTH();
+
+        // If there is less characters than the max amount, return as this no longer applies
+        if(text.length() < maxLength)
+            return;
+
+        // Remove the characters at the end of the message that cause it to exceed the max length
+        this.textInput.deleteText(maxLength -1, text.length() -1);
     }
 
     /**
