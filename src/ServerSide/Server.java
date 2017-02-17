@@ -32,7 +32,7 @@ public class Server {
                     waitForConnection();
                     setupThread();
                 } catch (EOFException eof) {
-                    System.err.print("\nServer Connection Ended");
+                    System.err.print("Server Connection Ended");
                 }
             }
         } catch(IOException io){
@@ -48,7 +48,7 @@ public class Server {
         socket = serverSocket.accept();
 
         // Display that the socket has been accepted
-        System.out.println("\nSocket has been connected");
+        System.out.println("Socket has been connected");
     }
 
     /**
@@ -61,6 +61,6 @@ public class Server {
         thread.start();
 
         // Display that thread has been created
-        System.out.println("\nThread has been created");
+        System.out.println("Thread has been created");
     }
 }

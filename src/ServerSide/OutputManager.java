@@ -44,7 +44,7 @@ public class OutputManager {
             outputs.get(client).close();
             outputs.remove(client);
         }catch (IOException IOex){
-            System.err.print("\nClosing output: " + IOex.getMessage());
+            System.err.print("Closing output: " + IOex.getMessage());
         }
     }
 
@@ -53,7 +53,7 @@ public class OutputManager {
             try{
                 outputs.get(recipient).writeObject(m);
             }catch (IOException IOex){
-                System.err.print("\nSending Message err: " + IOex.getMessage());
+                System.err.print("Sending Message err: " + IOex.getMessage());
             }
         }
     }

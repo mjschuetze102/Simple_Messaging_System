@@ -49,7 +49,7 @@ public class ClientThread extends Thread{
                     OutputManager.addOutput(m.getSender(), out);
 
                     // Display that the Client has been added to the ClientList
-                    System.out.println("\nClient has been added to the server");
+                    System.out.println("Client has been added to the server");
                 }
 
                 // Send a message to the client saying the connection has been established
@@ -66,14 +66,14 @@ public class ClientThread extends Thread{
                 OutputManager.sendMessage(m);
 
                 // Display that the clientList has been sent
-                System.out.println("\nClientList has been sent");
+                System.out.println("ClientList has been sent");
 
                 do {
                     // Read in the message being sent
                     m = (Message) in.readObject();
 
                     // Display that the message has been read
-                    System.out.println("\nMessage: "+ m.toString()+ " has been read.");
+                    System.out.println("Message: "+ m.toString()+ " has been read.");
 
                     // If client is not changing their name, display the message
                     if(!checkNameChange(m)){
@@ -81,7 +81,7 @@ public class ClientThread extends Thread{
                         OutputManager.sendMessage(m);
 
                         // Display that the message has been sent out
-                        System.out.println("\nMessage: "+ m.toString()+ " has been sent.");
+                        System.out.println("Message: "+ m.toString()+ " has been sent.");
                     }
                 }while (true);
 
@@ -103,7 +103,7 @@ public class ClientThread extends Thread{
                 OutputManager.sendMessage(m);
 
                 // Display that the socket and streams has been closed
-                System.out.println("\nStreams and socket have been closed");
+                System.out.println("Streams and socket have been closed");
             }
 
         }catch (IOException IOex){
@@ -131,7 +131,7 @@ public class ClientThread extends Thread{
             clientName= newUsername;
 
             // Display that the client has changed their name
-            System.out.println("\nClient: "+ clientName+ " name change completed.");
+            System.out.println("Client: "+ clientName+ " name change completed.");
 
             // Send the new client list to all the clients
             m = new Message( null, OutputManager.getClientList(), "" );
