@@ -22,7 +22,7 @@ public class Client extends Observable {
     private Socket connection;
 
     /** Name of the host IP address */
-    final String HOST = "129.21.139.115";
+    final String HOST = "localhost";
 
     /** Number of the port connecting to */
     final int PORT = 9001;
