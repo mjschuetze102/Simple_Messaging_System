@@ -52,6 +52,7 @@ public class OutputManager {
         for ( String recipient : m.getReceivers()){
             try{
                 outputs.get(recipient).writeObject(m);
+                outputs.get(recipient).flush();
             }catch (IOException IOex){
                 System.err.print("Sending Message err: " + IOex.getMessage());
             }
